@@ -104,12 +104,6 @@ const bootstrapDataIfEnabled = async () => {
   const enabled = String(process.env.BOOTSTRAP_DATA || '').toLowerCase() === 'true';
   if (!enabled) return;
 
-  const existingProducts = await Product.countDocuments();
-  if (existingProducts > 0) {
-    console.log('Bootstrap skipped: products already exist');
-    return;
-  }
-
   const sportsByName = {};
   const disciplinesByKey = {};
 
@@ -130,6 +124,7 @@ const bootstrapDataIfEnabled = async () => {
   }
 
   const productsToInsert = [];
+  let productsUpdated = 0;
   for (const assignment of productAssignments) {
     const sport = sportsByName[assignment.sport];
     if (!sport) continue;
@@ -142,16 +137,38 @@ const bootstrapDataIfEnabled = async () => {
       const baseProduct = productCatalog[index];
       if (!baseProduct) continue;
 
-      productsToInsert.push({
-        ...baseProduct,
-        sport: sport._id,
-        discipline: discipline ? discipline._id : undefined,
-      });
+      const existing = await Product.findOne({ name: baseProduct.name });
+      if (!existing) {
+        productsToInsert.push({
+          ...baseProduct,
+          sport: sport._id,
+          discipline: discipline ? discipline._id : undefined,
+        });
+      } else {
+        existing.sport = sport._id;
+        existing.discipline = discipline ? discipline._id : undefined;
+        if (!existing.images || existing.images.length === 0) {
+          existing.images = baseProduct.images || [];
+        }
+        if (!existing.brand && baseProduct.brand) {
+          existing.brand = baseProduct.brand;
+        }
+        if (!existing.rating && baseProduct.rating) {
+          existing.rating = baseProduct.rating;
+        }
+        await existing.save();
+        productsUpdated += 1;
+      }
     }
   }
 
-  await Product.insertMany(productsToInsert);
-  console.log(`Bootstrap completed: ${productsToInsert.length} products inserted across all categories`);
+  if (productsToInsert.length > 0) {
+    await Product.insertMany(productsToInsert);
+  }
+
+  console.log(
+    `Bootstrap completed: ${productsToInsert.length} inserted, ${productsUpdated} updated across all categories`
+  );
 };
 
 module.exports = { bootstrapDataIfEnabled };
