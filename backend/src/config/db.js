@@ -2,7 +2,13 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
+    const mongoUri = process.env.MONGO_URI;
+
+    if (!mongoUri || typeof mongoUri !== 'string') {
+      throw new Error('MONGO_URI is not set. Add MONGO_URI in environment variables before starting the server.');
+    }
+
+    const conn = await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
