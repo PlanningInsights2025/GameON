@@ -7,34 +7,29 @@ export default function ProductCard({ product }) {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const [isAddedToCart, setIsAddedToCart] = useState(false);
-  
-  // Generate consistent image based on product ID
-  const productImages = [
-    'https://images.unsplash.com/photo-1511886929837-354d827aae26?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1593073862407-a3ce22748763?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1552346154-21d32810aba3?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1543051932-6ef9fecfbc80?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1556817411-31ae72fa3ea0?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1461897104016-0b3b00cc81ee?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1526402095832-90f7e3c13b8c?w=400&h=400&fit=crop'
-  ];
 
-  // Get image based on product ID hash
-  const getImageIndex = (id) => {
+  const getImageHash = (value) => {
     let hash = 0;
-    for (let i = 0; i < id.length; i++) {
-      hash = ((hash << 5) - hash) + id.charCodeAt(i);
+    for (let i = 0; i < value.length; i++) {
+      hash = ((hash << 5) - hash) + value.charCodeAt(i);
       hash = hash & hash;
     }
-    return Math.abs(hash) % productImages.length;
+    return Math.abs(hash);
   };
 
-  const imageUrl = product.images?.[0] || productImages[getImageIndex(product._id || product.id)];
+  const buildProductImageUrl = (item) => {
+    const id = item._id || item.id || item.name || 'product';
+    const query = encodeURIComponent([
+      item.sport?.name,
+      item.name,
+      item.brand,
+      'sports equipment'
+    ].filter(Boolean).join(' '));
+    const signature = getImageHash(String(id));
+    return `https://source.unsplash.com/600x600/?${query}&sig=${signature}`;
+  };
+
+  const imageUrl = product.images?.[0] || buildProductImageUrl(product);
   const subCategory = product.sport?.name || 'General';
   const rating = product.rating || (3.5 + Math.random() * 1.5); // Generate rating between 3.5-5
 
@@ -69,6 +64,9 @@ export default function ProductCard({ product }) {
           src={imageUrl} 
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+          onError={(e) => {
+            e.currentTarget.src = `https://source.unsplash.com/600x600/?sports%20equipment&sig=${getImageHash(product.name || 'fallback')}`;
+          }}
         />
         {/* Gradient Overlay on Hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
