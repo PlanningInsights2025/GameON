@@ -222,6 +222,45 @@ JWT_SECRET=your_jwt_secret_here
 **Frontend:**
 Proxy configured in `vite.config.js` to forward `/api` to `http://localhost:5000`
 
+For production (e.g., Render Static Site), set:
+```
+VITE_API_BASE_URL=https://<your-backend-service>.onrender.com/api
+```
+
+## 🚀 Deploy on Render
+
+### 1) Deploy Backend (Web Service)
+
+1. In Render Dashboard, click **New +** → **Web Service**.
+2. Connect your GitHub repo and select this project.
+3. Configure:
+   - **Root Directory:** `backend`
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+4. Add environment variables:
+   - `PORT=5000`
+   - `MONGO_URI=<your-mongodb-atlas-uri>`
+   - `JWT_SECRET=<your-strong-secret>`
+5. Deploy and copy the backend URL (example: `https://gameon-api.onrender.com`).
+
+### 2) Deploy Frontend (Static Site)
+
+1. In Render Dashboard, click **New +** → **Static Site**.
+2. Select the same GitHub repo.
+3. Configure:
+   - **Root Directory:** `frontend`
+   - **Build Command:** `npm install && npm run build`
+   - **Publish Directory:** `dist`
+4. Add environment variable:
+   - `VITE_API_BASE_URL=https://<your-backend-service>.onrender.com/api`
+5. Deploy.
+
+### 3) Verify
+
+- Open frontend URL and register/login.
+- Confirm API calls succeed in browser Network tab.
+- If login/register fails, verify `VITE_API_BASE_URL` points to your backend `/api` route.
+
 ## 🛠️ Development
 
 - Backend uses `nodemon` for auto-reload
