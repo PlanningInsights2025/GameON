@@ -15,8 +15,24 @@ const { errorHandler } = require('./middleware/errorHandler');
 
 dotenv.config();
 const app = express();
+
+const corsOrigins = (process.env.CORS_ORIGIN || 'https://gameon24.netlify.app,http://localhost:3000')
+	.split(',')
+	.map((origin) => origin.trim())
+	.filter(Boolean);
+
+const corsOptions = {
+	origin: (origin, callback) => {
+		if (!origin || corsOrigins.includes(origin)) {
+			return callback(null, true);
+		}
+		return callback(new Error('CORS not allowed for this origin'));
+	},
+	credentials: true,
+};
+
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(morgan('dev'));
 
 connectDB();

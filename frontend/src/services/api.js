@@ -1,6 +1,22 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const normalizeApiBaseUrl = (rawBaseUrl) => {
+  if (!rawBaseUrl) return '/api';
+
+  const trimmed = rawBaseUrl.trim();
+  if (!trimmed) return '/api';
+
+  if (trimmed.startsWith('/')) {
+    return trimmed.endsWith('/api') ? trimmed : `${trimmed.replace(/\/$/, '')}/api`;
+  }
+
+  const withoutTrailingSlash = trimmed.replace(/\/$/, '');
+  return withoutTrailingSlash.endsWith('/api')
+    ? withoutTrailingSlash
+    : `${withoutTrailingSlash}/api`;
+};
+
+const API_BASE_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL);
 
 const API = axios.create({
   baseURL: API_BASE_URL,
