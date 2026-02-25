@@ -1,0 +1,9 @@
+{
+  "javascript.implicitProjectConfig.checkJs": false,
+  "search.exclude": {
+    "**/node_modules": true
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true
+  }
+}
