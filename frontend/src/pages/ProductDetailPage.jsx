@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { productService, reviewService } from '../services/api';
 import { CartContext } from '../context/CartContext';
@@ -8,9 +8,11 @@ import { AuthContext } from '../context/AuthContext';
 export default function ProductDetailPage() {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [pageError, setPageError] = useState('');
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedImage, setSelectedImage] = useState('');
   const { addToCart } = useContext(CartContext);
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const { user } = useContext(AuthContext);
@@ -27,10 +29,53 @@ export default function ProductDetailPage() {
   // Related products state
   const [relatedProducts, setRelatedProducts] = useState([]);
 
+  const resolveProductById = useCallback((payload, productId) => {
+    if (!payload) return null;
+
+    if (!Array.isArray(payload)) {
+      return payload?._id === productId ? payload : payload;
+    }
+
+    return payload.find((item) => item?._id === productId) || null;
+  }, []);
+
+  const loadReviews = useCallback(async (productId) => {
+    try {
+      const data = await reviewService.list(productId);
+      setReviews(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Failed to load reviews:', error);
+      setReviews([]);
+    }
+  }, []);
+
+  const loadProductDetails = useCallback(async () => {
+    setIsLoading(true);
+    setPageError('');
+
+    try {
+      const data = await productService.get(id);
+      const selectedProduct = resolveProductById(data, id);
+
+      if (!selectedProduct?._id) {
+        throw new Error('Product not found');
+      }
+
+      setProduct(selectedProduct);
+      setQty(1);
+      await loadReviews(selectedProduct._id);
+    } catch (error) {
+      console.error('Failed to load product:', error);
+      setProduct(null);
+      setPageError(error?.response?.data?.message || 'Unable to load product details right now.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id, loadReviews, resolveProductById]);
+
   useEffect(() => {
-    productService.get(id).then(setProduct);
-    loadReviews();
-  }, [id]);
+    loadProductDetails();
+  }, [loadProductDetails]);
 
   // Load related products when product changes
   useEffect(() => {
@@ -39,7 +84,7 @@ export default function ProductDetailPage() {
     }
   }, [product]);
 
-  const loadRelatedProducts = async () => {
+  const loadRelatedProducts = useCallback(async () => {
     try {
       // Fetch products from the same sport or discipline
       const filters = {};
@@ -52,32 +97,24 @@ export default function ProductDetailPage() {
 
       const data = await productService.list(filters);
       // Filter out the current product and limit to 4 related products
-      const related = data.filter(p => p._id !== id).slice(0, 4);
+      const related = data.filter(p => p._id !== product._id).slice(0, 4);
       setRelatedProducts(related);
     } catch (error) {
       console.error('Failed to load related products:', error);
+      setRelatedProducts([]);
     }
-  };
-
-  const loadReviews = async () => {
-    try {
-      const data = await reviewService.list(id);
-      setReviews(data);
-    } catch (error) {
-      console.error('Failed to load reviews:', error);
-    }
-  };
-
-  // Auto-slide effect for images
-  useEffect(() => {
-    if (!product || !product.images || product.images.length <= 1) return;
-    
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % product.images.length);
-    }, 3000); // Change image every 3 seconds
-
-    return () => clearInterval(interval);
   }, [product]);
+
+  const averageRating = useMemo(() => (
+    reviews.length > 0
+      ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
+      : 0
+  ), [reviews]);
+
+  const userHasReviewed = useMemo(
+    () => reviews.some((review) => review.user?._id === user?.id),
+    [reviews, user?.id]
+  );
 
   const handleAddToCart = () => {
     addToCart(product, qty);
@@ -123,7 +160,7 @@ export default function ProductDetailPage() {
       setReviewRating(5);
       setReviewComment('');
       setShowReviewForm(false);
-      loadReviews();
+      loadReviews(id);
       
       setTimeout(() => setReviewSuccess(''), 3000);
     } catch (error) {
@@ -157,12 +194,6 @@ export default function ProductDetailPage() {
     setReviewComment('');
     setShowReviewForm(false);
   };
-
-  const averageRating = reviews.length > 0 
-    ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
-    : 0;
-
-  const userHasReviewed = reviews.some(r => r.user?._id === user?.id);
 
   const isWishlisted = product && isInWishlist(product._id);
   const SPORTS_EQUIPMENT_IMAGE_POOL = [
@@ -225,7 +256,7 @@ export default function ProductDetailPage() {
     event.currentTarget.src = buildFallbackImage(seed);
   };
 
-  const galleryImages = (() => {
+  const galleryImages = useMemo(() => {
     const curatedImages = getCuratedProductImages();
     if (curatedImages.length > 0) {
       return curatedImages;
@@ -248,11 +279,53 @@ export default function ProductDetailPage() {
     }
 
     return merged;
-  })();
+  }, [product]);
+
+  useEffect(() => {
+    if (galleryImages.length === 0) {
+      setSelectedImage('');
+      return;
+    }
+
+    if (!selectedImage || !galleryImages.includes(selectedImage)) {
+      setSelectedImage(galleryImages[0]);
+    }
+  }, [galleryImages, selectedImage]);
+
+  useEffect(() => {
+    if (galleryImages.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setSelectedImage((prev) => {
+        const currentIndex = galleryImages.indexOf(prev);
+        const nextIndex = currentIndex >= 0
+          ? (currentIndex + 1) % galleryImages.length
+          : 0;
+        return galleryImages[nextIndex];
+      });
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [galleryImages]);
+
   const displayRating = Number(product?.rating || averageRating || 0).toFixed(1);
   const mrp = Math.round((product?.price || 0) * 1.2);
 
-  if (!product) return <div className="text-center py-20">Loading...</div>;
+  if (isLoading) return <div className="text-center py-20">Loading product details...</div>;
+
+  if (pageError || !product) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-16 px-4">
+        <div className="max-w-3xl mx-auto bg-white border border-red-200 text-red-700 p-6 rounded-lg">
+          <h2 className="text-xl font-bold mb-2">Unable to load product</h2>
+          <p>{pageError || 'The product could not be found.'}</p>
+          <Link to="/products" className="inline-block mt-4 text-blue-600 font-semibold hover:underline">
+            Back to Products
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -274,9 +347,9 @@ export default function ProductDetailPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {galleryImages.map((image, index) => (
                   <button
-                    key={index}
-                    onClick={() => setCurrentImageIndex(index)}
-                    className={`aspect-square bg-white border overflow-hidden ${index === currentImageIndex ? 'border-blue-600' : 'border-gray-200'}`}
+                    key={`${image}-${index}`}
+                    onClick={() => setSelectedImage(image)}
+                    className={`aspect-square bg-white border overflow-hidden ${image === selectedImage ? 'border-blue-600' : 'border-gray-200'}`}
                   >
                     <img
                       src={image}
@@ -325,9 +398,9 @@ export default function ProductDetailPage() {
                 <div className="flex gap-2">
                   {galleryImages.slice(0, 4).map((image, index) => (
                     <button
-                      key={`thumb-${index}`}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`w-12 h-12 border-2 rounded overflow-hidden ${index === currentImageIndex ? 'border-blue-600' : 'border-gray-200'}`}
+                      key={`thumb-${image}-${index}`}
+                      onClick={() => setSelectedImage(image)}
+                      className={`w-12 h-12 border-2 rounded overflow-hidden ${image === selectedImage ? 'border-blue-600' : 'border-gray-200'}`}
                     >
                       <img
                         src={image}
