@@ -11,6 +11,7 @@ const orderRoutes = require('./routes/orders');
 const otpRoutes = require('./routes/otp');
 const bannerRoutes = require('./routes/banners');
 const reviewRoutes = require('./routes/reviews');
+const { bootstrapDataIfEnabled } = require('./seed/bootstrapData');
 const { errorHandler } = require('./middleware/errorHandler');
 
 dotenv.config();
@@ -53,6 +54,7 @@ const PORT = process.env.PORT || 5000;
 const startServer = async () => {
 	try {
 		await connectDB();
+		await bootstrapDataIfEnabled();
 		app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 	} catch (error) {
 		console.error(`Failed to start server: ${error.message}`);
