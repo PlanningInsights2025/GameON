@@ -19,14 +19,25 @@ export default function ProductCard({ product }) {
 
   const buildProductImageUrl = (item) => {
     const id = item._id || item.id || item.name || 'product';
-    const query = encodeURIComponent([
-      item.sport?.name,
-      item.name,
-      item.brand,
-      'sports equipment'
-    ].filter(Boolean).join(' '));
     const signature = getImageHash(String(id));
-    return `https://source.unsplash.com/600x600/?${query}&sig=${signature}`;
+    return `https://picsum.photos/seed/gameon-${signature}/600/600`;
+  };
+
+  const buildInlineFallback = (name) => {
+    const safeName = encodeURIComponent((name || 'GameON Product').slice(0, 24));
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#2563eb"/>
+            <stop offset="100%" stop-color="#7c3aed"/>
+          </linearGradient>
+        </defs>
+        <rect width="600" height="600" fill="url(#g)"/>
+        <text x="50%" y="46%" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="38" font-family="Arial, sans-serif" font-weight="700">GameON</text>
+        <text x="50%" y="56%" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="20" font-family="Arial, sans-serif">${decodeURIComponent(safeName)}</text>
+      </svg>`
+    )}`;
   };
 
   const imageUrl = product.images?.[0] || buildProductImageUrl(product);
@@ -65,7 +76,12 @@ export default function ProductCard({ product }) {
           alt={product.name}
           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
           onError={(e) => {
-            e.currentTarget.src = `https://source.unsplash.com/600x600/?sports%20equipment&sig=${getImageHash(product.name || 'fallback')}`;
+            if (e.currentTarget.dataset.fallbackApplied === 'true') {
+              e.currentTarget.src = buildInlineFallback(product.name);
+              return;
+            }
+            e.currentTarget.dataset.fallbackApplied = 'true';
+            e.currentTarget.src = `https://picsum.photos/seed/fallback-${getImageHash(product.name || 'fallback')}/600/600`;
           }}
         />
         {/* Gradient Overlay on Hover */}
