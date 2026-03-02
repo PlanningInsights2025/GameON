@@ -4,6 +4,7 @@ import { productService, reviewService } from '../services/api';
 import { CartContext } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { AuthContext } from '../context/AuthContext';
+import { DEFAULT_PRODUCT_IMAGE, getProductPrimaryImage } from '../utils/productImage';
 
 export default function ProductDetailPage() {
   const { id } = useParams();
@@ -181,7 +182,7 @@ export default function ProductDetailPage() {
     try {
       await reviewService.delete(reviewId);
       setReviewSuccess('Review deleted successfully!');
-      loadReviews();
+      loadReviews(id);
       setTimeout(() => setReviewSuccess(''), 3000);
     } catch (error) {
       setReviewError('Failed to delete review');
@@ -196,89 +197,30 @@ export default function ProductDetailPage() {
   };
 
   const isWishlisted = product && isInWishlist(product._id);
-  const SPORTS_EQUIPMENT_IMAGE_POOL = [
-    'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1608245449230-4ac19066d2d0?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1519861531473-9200262188bf?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1491553895911-0055eca6402d?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80',
-    'https://images.unsplash.com/photo-1515523110800-9415d13b84a8?auto=format&fit=crop&w=1200&q=80',
-  ];
 
-  const SPORT_IMAGE_MAP = {
-    basketball: [
-      'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1608245449230-4ac19066d2d0?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1519861531473-9200262188bf?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80',
-    ],
-    gymnastics: [
-      'https://images.unsplash.com/photo-1571731956672-f2b94d7dd0cb?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=1200&q=80',
-    ],
-  };
-
-  const buildFallbackImage = (seed) => {
-    const key = String(seed || 'sports-equipment');
-    const hash = [...key].reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-    return SPORTS_EQUIPMENT_IMAGE_POOL[hash % SPORTS_EQUIPMENT_IMAGE_POOL.length];
-  };
-
-  const getCuratedProductImages = () => {
-    const productName = (product?.name || '').toLowerCase();
-    const sportName = (product?.sport?.name || '').toLowerCase();
-
-    if (productName.includes('balance beam')) {
-      return SPORT_IMAGE_MAP.gymnastics;
-    }
-
-    if (SPORT_IMAGE_MAP[sportName]) {
-      return SPORT_IMAGE_MAP[sportName];
-    }
-
-    return [];
-  };
-
-  const getFallbackImages = () => {
-    const sportName = (product?.sport?.name || '').toLowerCase();
-    if (SPORT_IMAGE_MAP[sportName]) {
-      return SPORT_IMAGE_MAP[sportName];
-    }
-    return SPORTS_EQUIPMENT_IMAGE_POOL.slice(0, 4);
-  };
-
-  const handleImageError = (event, seed = 'gameon-product') => {
+  const handleImageError = (event) => {
     event.currentTarget.onerror = null;
-    event.currentTarget.src = buildFallbackImage(seed);
+    event.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
   };
 
   const galleryImages = useMemo(() => {
-    const curatedImages = getCuratedProductImages();
-    if (curatedImages.length > 0) {
-      return curatedImages;
+    const images = [];
+    const primary = getProductPrimaryImage(product);
+    if (primary) images.push(primary);
+
+    if (Array.isArray(product?.images)) {
+      for (const image of product.images) {
+        if (image && !images.includes(image)) {
+          images.push(image);
+        }
+      }
     }
 
-    const productImages = Array.isArray(product?.images)
-      ? product.images.filter(Boolean)
-      : [];
-
-    if (productImages.length >= 4) {
-      return productImages;
+    if (images.length === 0) {
+      images.push(DEFAULT_PRODUCT_IMAGE);
     }
 
-    const fallbacks = getFallbackImages();
-    const merged = [...productImages];
-
-    for (const image of fallbacks) {
-      if (merged.length >= 4) break;
-      if (!merged.includes(image)) merged.push(image);
-    }
-
-    return merged;
+    return images;
   }, [product]);
 
   useEffect(() => {
@@ -675,20 +617,12 @@ export default function ProductDetailPage() {
                 >
                   {/* Product Image */}
                   <div className="relative h-48 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-50">
-                    {relatedProduct.images?.[0] ? (
-                      <img
-                        src={relatedProduct.images[0]}
-                        alt={relatedProduct.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                        onError={(e) => handleImageError(e, `${relatedProduct._id}-related`)}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <svg className="w-20 h-20 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                      </div>
-                    )}
+                    <img
+                      src={getProductPrimaryImage(relatedProduct)}
+                      alt={relatedProduct.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      onError={handleImageError}
+                    />
                     
                     {/* Stock Badge */}
                     {relatedProduct.stock === 0 ? (

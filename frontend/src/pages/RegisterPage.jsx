@@ -67,7 +67,11 @@ export default function RegisterPage() {
         setOtpSent(true);
         setStep(2);
       } catch (error) {
-        setErrors({ submit: error.response?.data?.message || 'Failed to send OTP' });
+        const message =
+          error.response?.data?.message ||
+          error.message ||
+          'Failed to send OTP. Please try again.';
+        setErrors({ submit: message });
       } finally {
         setSendingOtp(false);
       }
@@ -117,7 +121,11 @@ export default function RegisterPage() {
         alert('OTP resent successfully! Check your email.');
       }
     } catch (error) {
-      setErrors({ submit: error.response?.data?.message || 'Failed to resend OTP' });
+      const message =
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to resend OTP. Please try again.';
+      setErrors({ submit: message });
     } finally {
       setSendingOtp(false);
     }

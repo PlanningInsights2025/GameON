@@ -5,6 +5,13 @@ const Discipline = require('../models/Discipline');
 const Product = require('../models/Product');
 const User = require('../models/User');
 
+const slugifyProductName = (name) => String(name || 'product')
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '');
+
+const imagePathForProductName = (name) => `/images/products/${slugifyProductName(name)}.svg`;
+
 dotenv.config();
 connectDB();
 
@@ -69,9 +76,9 @@ const seedData = async () => {
       { name: 'Pull Buoy Set', description: 'Professional training aid', price: 1899, stock: 40, brand: 'Finis', rating: 4.4 },
       
       // Basketball
-      { name: 'Official Basketball', description: 'FIBA approved game ball', price: 5999, stock: 30, brand: 'Molten', rating: 4.8, images: ['https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800', 'https://images.unsplash.com/photo-1608245449230-4ac19066d2d0?w=800', 'https://images.unsplash.com/photo-1519861531473-9200262188bf?w=800'] },
-      { name: 'Basketball Shoes High-Top', description: 'Professional court shoes', price: 12999, stock: 18, brand: 'Nike', rating: 4.6, images: ['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800', 'https://images.unsplash.com/photo-1600185365926-3a2ce3cdb9eb?w=800', 'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=800'] },
-      { name: 'Adjustable Basketball Hoop', description: 'Portable hoop system', price: 24999, stock: 5, brand: 'Spalding', rating: 4.5, images: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800', 'https://images.unsplash.com/photo-1515523110800-9415d13b84a8?w=800'] },
+      { name: 'Official Basketball', description: 'FIBA approved game ball', price: 5999, stock: 30, brand: 'Molten', rating: 4.8 },
+      { name: 'Basketball Shoes High-Top', description: 'Professional court shoes', price: 12999, stock: 18, brand: 'Nike', rating: 4.6 },
+      { name: 'Adjustable Basketball Hoop', description: 'Portable hoop system', price: 24999, stock: 5, brand: 'Spalding', rating: 4.5 },
       
       // Football
       { name: 'Match Football Size 5', description: 'FIFA approved match ball', price: 4999, stock: 40, brand: 'Adidas', rating: 4.7 },
@@ -162,8 +169,11 @@ const seedData = async () => {
       
       for (const productIndex of assignment.products) {
         const productInfo = productData[productIndex];
+        const staticImagePath = imagePathForProductName(productInfo.name);
         await Product.create({
           ...productInfo,
+          image: staticImagePath,
+          images: [staticImagePath],
           sport: sport._id,
           discipline: discipline ? discipline.discipline._id : undefined
         });

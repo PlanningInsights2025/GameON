@@ -20,6 +20,7 @@ const API_BASE_URL = normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL);
 
 const API = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 15000,
 });
 
 API.interceptors.request.use((config) => {
@@ -29,6 +30,16 @@ API.interceptors.request.use((config) => {
   }
   return config;
 });
+
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.code === 'ECONNABORTED') {
+      error.message = 'Request timed out. Please check your internet connection and try again.';
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const authService = {
   login: async (email, password) => {

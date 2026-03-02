@@ -2,34 +2,11 @@ import { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { WishlistContext } from '../context/WishlistContext';
 import { CartContext } from '../context/CartContext';
+import { DEFAULT_PRODUCT_IMAGE, getProductPrimaryImage } from '../utils/productImage';
 
 export default function WishlistPage() {
   const { wishlist, removeFromWishlist } = useContext(WishlistContext);
   const { addToCart } = useContext(CartContext);
-
-  const productImages = [
-    'https://images.unsplash.com/photo-1511886929837-354d827aae26?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1593073862407-a3ce22748763?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1552346154-21d32810aba3?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1543051932-6ef9fecfbc80?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1556817411-31ae72fa3ea0?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1461897104016-0b3b00cc81ee?w=400&h=400&fit=crop',
-    'https://images.unsplash.com/photo-1526402095832-90f7e3c13b8c?w=400&h=400&fit=crop'
-  ];
-
-  const getImageIndex = (id) => {
-    let hash = 0;
-    for (let i = 0; i < id.length; i++) {
-      hash = ((hash << 5) - hash) + id.charCodeAt(i);
-      hash = hash & hash;
-    }
-    return Math.abs(hash) % productImages.length;
-  };
 
   const handleAddToCart = (product) => {
     addToCart(product);
@@ -74,7 +51,7 @@ export default function WishlistPage() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {wishlist.map(product => {
-            const imageUrl = product.images?.[0] || productImages[getImageIndex(product._id)];
+            const imageUrl = getProductPrimaryImage(product);
             
             return (
               <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300">
@@ -85,6 +62,10 @@ export default function WishlistPage() {
                       src={imageUrl} 
                       alt={product.name}
                       className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                      onError={(e) => {
+                        e.currentTarget.onerror = null;
+                        e.currentTarget.src = DEFAULT_PRODUCT_IMAGE;
+                      }}
                     />
                     {product.stock < 10 && product.stock > 0 && (
                       <div className="absolute top-2 right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full font-semibold">

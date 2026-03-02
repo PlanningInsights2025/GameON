@@ -7,6 +7,7 @@ const productSchema = new mongoose.Schema({
   stock: { type: Number, default: 0 },
   sport: { type: mongoose.Schema.Types.ObjectId, ref: 'Sport', required: true },
   discipline: { type: mongoose.Schema.Types.ObjectId, ref: 'Discipline' },
+  image: { type: String },
   images: [{ type: String }],
   brand: { type: String },
   rating: { type: Number, default: 4.0, min: 0, max: 5 }
