@@ -195,6 +195,7 @@ const bootstrapDataIfEnabled = async () => {
       const baseProduct = productCatalog[index];
       if (!baseProduct) continue;
       const imgUrl = imageForProduct(baseProduct.name);
+
       const existing = await Product.findOne({ name: baseProduct.name });
       if (!existing) {
         productsToInsert.push({
