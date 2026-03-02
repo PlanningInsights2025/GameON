@@ -50,6 +50,23 @@ export const authService = {
     const res = await API.post('/auth/register', { name, email, password });
     return res.data;
   },
+  getMe: async () => {
+    const res = await API.get('/auth/me');
+    return res.data;
+  },
+  forgotPassword: async (email) => {
+    const res = await API.post('/auth/forgot-password', { email });
+    return res.data;
+  },
+  resetPassword: async (email, otp, newPassword) => {
+    const res = await API.post('/auth/reset-password', { email, otp, newPassword });
+    return res.data;
+  },
+  googleLoginUrl: () => {
+    const base = API.defaults.baseURL || '/api';
+    // Strip trailing /api if present so we get the raw backend URL
+    return `${base}/auth/google`;
+  },
 };
 
 export const sportService = {

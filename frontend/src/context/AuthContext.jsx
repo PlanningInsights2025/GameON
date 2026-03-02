@@ -8,6 +8,25 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Handle Google OAuth redirect: /auth/google/success?token=...&user=...
+    if (window.location.pathname === '/auth/google/success') {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
+      const userParam = params.get('user');
+      if (token && userParam) {
+        try {
+          const userData = JSON.parse(decodeURIComponent(userParam));
+          localStorage.setItem('token', token);
+          localStorage.setItem('user', JSON.stringify(userData));
+          setUser(userData);
+          // Clean up URL and redirect home
+          window.history.replaceState({}, '', '/');
+          window.location.href = '/';
+          return;
+        } catch { /* ignore parse error */ }
+      }
+    }
+
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
     if (token && userData) {
@@ -30,6 +49,10 @@ export const AuthProvider = ({ children }) => {
     setUser({ ...data.user, phone });
   };
 
+  const loginWithGoogle = () => {
+    window.location.href = authService.googleLoginUrl();
+  };
+
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -37,7 +60,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, register, loginWithGoogle, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

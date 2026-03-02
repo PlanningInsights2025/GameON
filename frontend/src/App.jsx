@@ -11,6 +11,7 @@ import CheckoutPage from './pages/CheckoutPage';
 import LoginPage from './pages/LoginPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import RegisterPage from './pages/RegisterPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import OrdersPage from './pages/OrdersPage';
 import AddressPage from './pages/AddressPage';
 import SupportPage from './pages/SupportPage';
@@ -44,6 +45,8 @@ function App() {
         <Route path="/login" element={<><Navbar /><LoginPage /><Footer /></>} />
         <Route path="/admin-login" element={<AdminLoginPage />} />
         <Route path="/register" element={<><Navbar /><RegisterPage /><Footer /></>} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/auth/google/success" element={<ForgotPasswordPage />} />{/* handled by AuthContext redirect */}
         <Route path="/support" element={<><Navbar /><SupportPage /><Footer /></>} />
 
         {/* Protected user routes */}

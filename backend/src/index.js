@@ -2,7 +2,9 @@ const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 const cors = require('cors');
+const session = require('express-session');
 const connectDB = require('./config/db');
+const passport = require('./config/passport');
 const authRoutes = require('./routes/auth');
 const sportRoutes = require('./routes/sports');
 const disciplineRoutes = require('./routes/disciplines');
@@ -35,6 +37,14 @@ const corsOptions = {
 app.use(express.json());
 app.use(cors(corsOptions));
 app.use(morgan('dev'));
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'gameon_session_secret_2026',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 5 * 60 * 1000 } // 5 min, only for OAuth handshake
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.get('/', (req, res) => res.send('GameON API — Olympic Sports E-commerce'));
 
