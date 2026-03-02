@@ -13,8 +13,9 @@ export const getStaticProductImagePath = (name) => {
 };
 
 export const getProductPrimaryImage = (product) => {
-  if (product?.image && String(product.image).startsWith('/images/')) {
-    return product.image;
+  const img = product?.image;
+  if (img && typeof img === 'string' && img.trim()) {
+    return img; // accepts /images/... local paths AND http(s):// remote URLs
   }
 
   if (Array.isArray(product?.images) && product.images.length > 0) {
