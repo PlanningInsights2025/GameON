@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6b21a8"/>
+      <stop offset="100%" style="stop-color:#9333ea"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0"/>
+    </linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#00000066"/></filter>
+  </defs>
+  <!-- background -->
+  <rect width="300" height="300" fill="url(#bg)"/>
+  <rect width="300" height="300" fill="url(#shine)"/>
+  <!-- subtle grid -->
+  <line x1="0" y1="150" x2="300" y2="150" stroke="#e879f9" stroke-width="0.4" opacity="0.2"/>
+  <line x1="150" y1="0" x2="150" y2="300" stroke="#e879f9" stroke-width="0.4" opacity="0.2"/>
+  
+<g transform="translate(120,25)" filter="url(#shadow)">
+  <line x1="30" y1="230" x2="30" y2="230" stroke="#e879f9" stroke-width="3"/>
+  <path d="M30,230 C-10,180 60,150 20,100 C-15,55 50,30 30,0" fill="none" stroke="#e879f9" stroke-width="5" stroke-linecap="round"/>
+  <ellipse cx="30" cy="0" rx="20" ry="8" fill="#e879f9" opacity="0.6"/>
+  <circle cx="30" cy="230" r="6" fill="#ffffff"/>
+  <rect x="25" y="230" width="10" height="30" rx="4" fill="#ffffff" opacity="0.6"/>
+</g>
+<text x="150" y="231" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#e879f9" letter-spacing="0.5">Rhythmic</text>
+<text x="150" y="247" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#e879f9" letter-spacing="0.5">Gymnastics Ribbon</text>
+<text x="150" y="283" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#ffffff" opacity="0.6">GameON</text>
+</svg>

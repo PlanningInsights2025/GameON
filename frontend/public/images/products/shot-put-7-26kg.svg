@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#c2410c"/>
+      <stop offset="100%" style="stop-color:#ea580c"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0"/>
+    </linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#00000066"/></filter>
+  </defs>
+  <!-- background -->
+  <rect width="300" height="300" fill="url(#bg)"/>
+  <rect width="300" height="300" fill="url(#shine)"/>
+  <!-- subtle grid -->
+  <line x1="0" y1="150" x2="300" y2="150" stroke="#fb923c" stroke-width="0.4" opacity="0.2"/>
+  <line x1="150" y1="0" x2="150" y2="300" stroke="#fb923c" stroke-width="0.4" opacity="0.2"/>
+  
+<g transform="translate(150,150)" filter="url(#shadow)">
+  <circle cx="0" cy="0" r="65" fill="#fb923c"/>
+  <circle cx="-18" cy="-18" r="18" fill="#ea580c" opacity="0.4"/>
+  <text x="0" y="8" text-anchor="middle" font-family="Arial" font-size="14" fill="#ffffff" opacity="0.6">7.26 kg</text>
+</g>
+<text x="150" y="245" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#fb923c" letter-spacing="0.5">Shot Put 7.26kg</text>
+<text x="150" y="283" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#ffffff" opacity="0.6">GameON</text>
+</svg>

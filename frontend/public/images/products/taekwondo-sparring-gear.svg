@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7f1d1d"/>
+      <stop offset="100%" style="stop-color:#991b1b"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0"/>
+    </linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#00000066"/></filter>
+  </defs>
+  <!-- background -->
+  <rect width="300" height="300" fill="url(#bg)"/>
+  <rect width="300" height="300" fill="url(#shine)"/>
+  <!-- subtle grid -->
+  <line x1="0" y1="150" x2="300" y2="150" stroke="#f87171" stroke-width="0.4" opacity="0.2"/>
+  <line x1="150" y1="0" x2="150" y2="300" stroke="#f87171" stroke-width="0.4" opacity="0.2"/>
+  
+<g transform="translate(35,30)" filter="url(#shadow)">
+  <!-- chest protector -->
+  <rect x="45" y="40" width="140" height="130" rx="18" fill="#f87171"/>
+  <!-- neck guard -->
+  <rect x="80" y="28" width="70" height="22" rx="8" fill="#f87171"/>
+  <!-- shin guard L -->
+  <rect x="5"  y="180" width="44" height="90" rx="12" fill="#991b1b"/>
+  <!-- shin guard R -->
+  <rect x="181" y="180" width="44" height="90" rx="12" fill="#991b1b"/>
+  <!-- helmet -->
+  <ellipse cx="115" cy="15" rx="50" ry="22" fill="#991b1b"/>
+  <!-- logos -->
+  <text x="115" y="112" text-anchor="middle" font-family="Arial" font-size="28" font-weight="bold" fill="#ffffff" opacity="0.5">WTF</text>
+</g>
+<text x="150" y="231" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#f87171" letter-spacing="0.5">Taekwondo Sparring</text>
+<text x="150" y="247" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#f87171" letter-spacing="0.5">Gear</text>
+<text x="150" y="283" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#ffffff" opacity="0.6">GameON</text>
+</svg>

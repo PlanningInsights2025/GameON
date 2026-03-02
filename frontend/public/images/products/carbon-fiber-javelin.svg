@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#c2410c"/>
+      <stop offset="100%" style="stop-color:#ea580c"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0"/>
+    </linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#00000066"/></filter>
+  </defs>
+  <!-- background -->
+  <rect width="300" height="300" fill="url(#bg)"/>
+  <rect width="300" height="300" fill="url(#shine)"/>
+  <!-- subtle grid -->
+  <line x1="0" y1="150" x2="300" y2="150" stroke="#fb923c" stroke-width="0.4" opacity="0.2"/>
+  <line x1="150" y1="0" x2="150" y2="300" stroke="#fb923c" stroke-width="0.4" opacity="0.2"/>
+  
+<g transform="translate(30,130)" filter="url(#shadow)">
+  <line x1="0"   y1="0"   x2="240" y2="0"   stroke="#fb923c" stroke-width="8"  stroke-linecap="round"/>
+  <polygon points="240,0 220,-8 220,8" fill="#ffffff"/>
+  <rect x="80" y="-6" width="50" height="12" rx="4" fill="#ea580c"/>
+  <line x1="0" y1="0" x2="20" y2="-14" stroke="#fb923c" stroke-width="4"/>
+  <line x1="0" y1="0" x2="20" y2="14"  stroke="#fb923c" stroke-width="4"/>
+</g>
+<text x="150" y="231" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#fb923c" letter-spacing="0.5">Carbon Fiber</text>
+<text x="150" y="247" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#fb923c" letter-spacing="0.5">Javelin</text>
+<text x="150" y="283" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#ffffff" opacity="0.6">GameON</text>
+</svg>

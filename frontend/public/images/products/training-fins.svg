@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="300" height="300">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0369a1"/>
+      <stop offset="100%" style="stop-color:#0ea5e9"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.15"/>
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0"/>
+    </linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#00000066"/></filter>
+  </defs>
+  <!-- background -->
+  <rect width="300" height="300" fill="url(#bg)"/>
+  <rect width="300" height="300" fill="url(#shine)"/>
+  <!-- subtle grid -->
+  <line x1="0" y1="150" x2="300" y2="150" stroke="#38bdf8" stroke-width="0.4" opacity="0.2"/>
+  <line x1="150" y1="0" x2="150" y2="300" stroke="#38bdf8" stroke-width="0.4" opacity="0.2"/>
+  
+<g transform="translate(35,40)" filter="url(#shadow)">
+  <!-- left fin -->
+  <path d="M10,130 Q0,60 40,20 Q80,-5 90,50 L90,130 Z" fill="#38bdf8"/>
+  <path d="M10,130 Q0,60 40,20 Q80,-5 90,50 L90,130 Z" fill="#0ea5e9" opacity="0.4"/>
+  <!-- foot pocket -->
+  <rect x="15" y="110" width="72" height="35" rx="10" fill="#0369a1" opacity="0.6"/>
+  <!-- right fin -->
+  <path d="M125,130 Q115,60 155,20 Q195,-5 205,50 L205,130 Z" fill="#38bdf8"/>
+  <path d="M125,130 Q115,60 155,20 Q195,-5 205,50 L205,130 Z" fill="#0ea5e9" opacity="0.4"/>
+  <rect x="130" y="110" width="72" height="35" rx="10" fill="#0369a1" opacity="0.6"/>
+</g>
+<text x="150" y="245" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#38bdf8" letter-spacing="0.5">Training Fins</text>
+<text x="150" y="283" text-anchor="middle" font-family="Arial,sans-serif" font-size="10" fill="#ffffff" opacity="0.6">GameON</text>
+</svg>
