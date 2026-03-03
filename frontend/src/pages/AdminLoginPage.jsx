@@ -222,20 +222,6 @@ export default function AdminLoginPage() {
                 </button>
               </form>
               
-              {/* Demo Credentials */}
-              <div className="mt-6 p-4 bg-slate-800/50 rounded-xl border border-slate-700">
-                <div className="flex items-center space-x-2 mb-3">
-                  <svg className="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <p className="text-xs text-slate-300 font-semibold">Demo Credentials</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-slate-400">Email: <span className="font-mono text-blue-300">admin@gameon.com</span></p>
-                  <p className="text-xs text-slate-400">Password: <span className="font-mono text-blue-300">admin123</span></p>
-                </div>
-              </div>
-
               {/* Back to Store Link */}
               <div className="mt-6 text-center">
                 <Link to="/" className="text-slate-300 hover:text-white text-sm transition inline-flex items-center space-x-2">
