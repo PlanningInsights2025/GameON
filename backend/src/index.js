@@ -48,6 +48,10 @@ app.use(passport.session());
 
 app.get('/', (req, res) => res.send('GameON API — Olympic Sports E-commerce'));
 
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'Server Running', timestamp: new Date().toISOString() });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/sports', sportRoutes);
 app.use('/api/disciplines', disciplineRoutes);

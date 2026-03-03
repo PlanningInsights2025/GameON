@@ -1,0 +1,19 @@
+name: Keep Render Backend Alive
+
+on:
+  schedule:
+    # Runs every 10 minutes
+    - cron: '*/10 * * * *'
+  workflow_dispatch:  # Allow manual trigger from GitHub Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render backend health endpoint
+        run: |
+          echo "Pinging backend at $(date)"
+          curl --fail --silent --show-error --max-time 30 \
+            https://gameon-7sox.onrender.com/api/health
+          echo ""
+          echo "Backend is alive."
