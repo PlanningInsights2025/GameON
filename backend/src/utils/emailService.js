@@ -5,13 +5,21 @@ const createTransporter = () => {
   // For production, use real SMTP credentials from .env
   
   if (process.env.EMAIL_SERVICE === 'gmail') {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+      console.error('❌ Gmail credentials missing: EMAIL_USER and EMAIL_PASSWORD must be set in environment variables.');
+      throw new Error('Email service not configured. Please set EMAIL_USER and EMAIL_PASSWORD on Render.');
+    }
     try {
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
           user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASSWORD
-        }
+          pass: process.env.EMAIL_PASSWORD  // Use a Gmail App Password, not your regular password
+        },
+        // Prevent hanging indefinitely on bad credentials or network issues
+        connectionTimeout: 10000,  // 10 seconds to establish connection
+        greetingTimeout: 10000,    // 10 seconds for SMTP greeting
+        socketTimeout: 15000,      // 15 seconds of inactivity before aborting
       });
       console.log('✓ Gmail transporter created successfully');
       return transporter;
@@ -22,12 +30,13 @@ const createTransporter = () => {
   }
   
   // Default: Use console logging for development
+  console.warn('⚠️  EMAIL_SERVICE is not set to "gmail" — emails will only be logged to console (dev mode).');
   return {
     sendMail: async (mailOptions) => {
-      console.log('\n📧 Email would be sent:');
+      console.log('\n📧 [DEV] Email would be sent:');
       console.log('To:', mailOptions.to);
       console.log('Subject:', mailOptions.subject);
-      console.log('Content:', mailOptions.text || mailOptions.html);
+      console.log('Text:', mailOptions.text);
       console.log('---\n');
       return { messageId: 'dev-' + Date.now() };
     }

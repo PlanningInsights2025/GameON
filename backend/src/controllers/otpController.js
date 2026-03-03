@@ -17,6 +17,11 @@ exports.sendOTP = async (req, res) => {
       return res.status(400).json({ message: 'Email is required' });
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+
     // Generate OTP
     const otp = generateOTP();
     
@@ -26,20 +31,34 @@ exports.sendOTP = async (req, res) => {
       expiresAt: Date.now() + 10 * 60 * 1000 // 10 minutes
     });
 
-    // Send OTP email
+    const isProductionEmail = process.env.EMAIL_SERVICE === 'gmail';
+
+    console.log(`[OTP] Sending OTP to ${email} | mode: ${isProductionEmail ? 'gmail' : 'dev-console'}`);
+
+    // Send OTP email (throws on failure so catch block handles it)
     await sendOTPEmail(email, otp);
 
-    // In development (when EMAIL_SERVICE is not configured), include OTP in response
-    const isDevMode = !process.env.EMAIL_SERVICE || process.env.EMAIL_SERVICE !== 'gmail';
-
+    // In dev mode (no Gmail configured), include OTP in response so registration still works
     res.status(200).json({ 
-      message: 'OTP sent successfully',
-      // For development only - shows OTP when not actually sending emails
-      devOTP: isDevMode ? otp : undefined
+      message: isProductionEmail
+        ? 'Verification code sent to your email'
+        : 'OTP generated (dev mode — email not actually sent)',
+      devOTP: isProductionEmail ? undefined : otp
     });
   } catch (error) {
-    console.error('Send OTP Error:', error);
-    res.status(500).json({ message: 'Failed to send OTP' });
+    console.error('[OTP] sendOTP error:', error.message || error);
+
+    // Give a specific message for common Gmail failures
+    let userMessage = 'Failed to send verification email. Please try again.';
+    if (error.message && error.message.includes('not configured')) {
+      userMessage = 'Email service is not configured on the server. Contact support.';
+    } else if (error.code === 'EAUTH' || (error.message && error.message.includes('Invalid login'))) {
+      userMessage = 'Email service authentication failed. Contact support.';
+    } else if (error.code === 'ETIMEDOUT' || error.code === 'ECONNREFUSED' || error.code === 'ENOTFOUND') {
+      userMessage = 'Could not connect to email service. Please try again in a moment.';
+    }
+
+    return res.status(500).json({ message: userMessage });
   }
 };
 

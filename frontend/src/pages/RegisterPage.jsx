@@ -16,6 +16,7 @@ export default function RegisterPage() {
   const [otpSent, setOtpSent] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
   const [devOTP, setDevOTP] = useState(null);
+  const [serverWakingUp, setServerWakingUp] = useState(false);
   
   const { register, loginWithGoogle } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -54,19 +55,26 @@ export default function RegisterPage() {
     if (Object.keys(newErrors).length === 0) {
       try {
         setSendingOtp(true);
+        setServerWakingUp(false);
+
+        // After 6s warn user the server might be cold-starting (Render free tier)
+        const wakeTimer = setTimeout(() => setServerWakingUp(true), 6000);
+
         // Send OTP to email via backend
         const response = await otpService.send(email);
+        clearTimeout(wakeTimer);
+        setServerWakingUp(false);
         console.log('OTP Response:', response);
         
         // Store and show development OTP if available
         if (response.devOTP) {
           setDevOTP(response.devOTP);
-          alert(`Development Mode - Your OTP: ${response.devOTP}`);
         }
         
         setOtpSent(true);
         setStep(2);
       } catch (error) {
+        setServerWakingUp(false);
         const message =
           error.response?.data?.message ||
           error.message ||
@@ -110,17 +118,20 @@ export default function RegisterPage() {
   const handleResendOtp = async () => {
     try {
       setSendingOtp(true);
+      setServerWakingUp(false);
       setErrors({});
+      const wakeTimer = setTimeout(() => setServerWakingUp(true), 6000);
       const response = await otpService.send(email);
+      clearTimeout(wakeTimer);
+      setServerWakingUp(false);
       
-      // Show development OTP if available
       if (response.devOTP) {
         setDevOTP(response.devOTP);
-        alert(`Development Mode - New OTP: ${response.devOTP}`);
       } else {
-        alert('OTP resent successfully! Check your email.');
+        setDevOTP(null);
       }
     } catch (error) {
+      setServerWakingUp(false);
       const message =
         error.response?.data?.message ||
         error.message ||
@@ -202,6 +213,12 @@ export default function RegisterPage() {
               {errors.passwordConfirm && <p className="text-red-500 text-sm mt-1">{errors.passwordConfirm}</p>}
             </div>
 
+            {serverWakingUp && (
+              <div className="mb-3 p-3 bg-yellow-50 border border-yellow-200 rounded text-sm text-yellow-800">
+                ⏳ Server is waking up (first request takes ~30s on free hosting). Please wait...
+              </div>
+            )}
+
             {errors.submit && <p className="text-red-500 text-sm mb-3 p-3 bg-red-50 rounded">{errors.submit}</p>}
 
             <button 
@@ -209,7 +226,9 @@ export default function RegisterPage() {
               disabled={sendingOtp}
               className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50"
             >
-              {sendingOtp ? 'Sending OTP...' : 'Send Verification Code'}
+              {sendingOtp
+                ? serverWakingUp ? 'Waking up server...' : 'Sending OTP...'
+                : 'Send Verification Code'}
             </button>
           </form>
         )}
@@ -226,13 +245,15 @@ export default function RegisterPage() {
             </div>
 
             {/* Development Mode OTP Display */}
-            {devOTP && (
+            {devOTP ? (
               <div className="mb-6 p-4 bg-yellow-50 border-2 border-yellow-300 rounded-lg">
-                <p className="text-sm font-semibold text-yellow-800 mb-2">🔧 Development Mode</p>
-                <p className="text-xs text-yellow-700 mb-2">Your verification code:</p>
+                <p className="text-sm font-semibold text-yellow-800 mb-2">🔧 Development Mode — Email not configured</p>
+                <p className="text-xs text-yellow-700 mb-2">Your verification code (copy this):</p>
                 <p className="text-3xl font-bold text-yellow-900 text-center tracking-widest">{devOTP}</p>
-                <p className="text-xs text-yellow-600 mt-2 text-center">Copy this code below</p>
+                <p className="text-xs text-yellow-600 mt-2 text-center">Set EMAIL_SERVICE=gmail on Render to send real emails</p>
               </div>
+            ) : (
+              <p className="text-sm text-gray-500 text-center mb-4">Check your inbox (and spam folder) at <strong>{email}</strong></p>
             )}
 
             <div className="mb-6">
