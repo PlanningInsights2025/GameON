@@ -3,6 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 const { register, login, getMe, forgotPassword, resetPassword, googleCallback } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
+const { getFrontendUrl } = require('../utils/frontendUrl');
 
 // Email / password auth
 router.post('/register', register);
@@ -16,7 +17,7 @@ router.post('/reset-password', resetPassword);
 // Google OAuth
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'], session: true }));
 router.get('/google/callback',
-  passport.authenticate('google', { failureRedirect: `${process.env.FRONTEND_URL || 'https://gameon24.netlify.app'}/login?error=google_auth_failed`, session: true }),
+  passport.authenticate('google', { failureRedirect: `${getFrontendUrl()}/login?error=google_auth_failed`, session: true }),
   googleCallback
 );
 

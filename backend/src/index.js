@@ -15,13 +15,14 @@ const bannerRoutes = require('./routes/banners');
 const reviewRoutes = require('./routes/reviews');
 const { bootstrapDataIfEnabled } = require('./seed/bootstrapData');
 const { errorHandler } = require('./middleware/errorHandler');
+const { normalizeFrontendUrl } = require('./utils/frontendUrl');
 
 dotenv.config();
 const app = express();
 
-const corsOrigins = (process.env.CORS_ORIGIN || 'https://gameon24.netlify.app,http://localhost:3000')
+const corsOrigins = (process.env.CORS_ORIGIN || 'https://gameon11.netlify.app,http://localhost:3000')
 	.split(',')
-	.map((origin) => origin.trim())
+	.map((origin) => normalizeFrontendUrl(origin.trim()))
 	.filter(Boolean);
 
 const corsOptions = {

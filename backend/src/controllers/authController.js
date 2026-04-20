@@ -2,6 +2,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { sendLoginNotificationEmail, sendPasswordResetEmail } = require('../utils/emailService');
+const { getFrontendUrl } = require('../utils/frontendUrl');
 
 // In-memory store for password-reset OTPs (same pattern as otpController)
 const resetOtpStore = new Map();
@@ -94,11 +95,11 @@ exports.googleCallback = (req, res) => {
   try {
     const user = req.user;
     const token = generateToken(user);
-    const frontendUrl = process.env.FRONTEND_URL || 'https://gameon24.netlify.app';
+    const frontendUrl = getFrontendUrl();
     // Redirect to frontend with token in query string; frontend reads it and stores in localStorage
     res.redirect(`${frontendUrl}/auth/google/success?token=${token}&user=${encodeURIComponent(JSON.stringify(safeUser(user)))}`);
   } catch (err) {
-    const frontendUrl = process.env.FRONTEND_URL || 'https://gameon24.netlify.app';
+    const frontendUrl = getFrontendUrl();
     res.redirect(`${frontendUrl}/login?error=google_auth_failed`);
   }
 };
